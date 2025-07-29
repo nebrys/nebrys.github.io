@@ -3,4 +3,6 @@ layout: home
 title: Accueil
 ---
 
-Welcome to my dark fantasy writing portfolio!
+Bienvenue sur mon portfolio dark fantasy !
+
+Utilise la navigation en haut pour accéder aux différentes sections.
