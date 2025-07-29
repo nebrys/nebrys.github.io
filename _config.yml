@@ -1,0 +1,20 @@
+remote_theme: mmistakes/minimal-mistakes@4.24.0
+title: "My Dark Fantasy Portfolio"
+description: "Dark fantasy, Lovecraftian & absurd writing portfolio"
+author:
+  name: Your Name
+
+plugins:
+  - jekyll-remote-theme
+
+navigation:
+  - title: "Accueil"
+    url: /
+  - title: "SFW"
+    url: /sfw/
+  - title: "NSFW"
+    url: /nsfw/
+  - title: "Contact"
+    url: /contact/
+
+dark_mode: true
