@@ -4,4 +4,4 @@ title: NSFW
 permalink: /nsfw/
 ---
 
-NSFW content here...
+Section NSFW, contenu adulte ou fun.
