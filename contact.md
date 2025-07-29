@@ -4,4 +4,4 @@ title: Contact
 permalink: /contact/
 ---
 
-You can contact me at [email@example.com](mailto:email@example.com).
+Contacte-moi à [email@example.com](mailto:email@example.com)
