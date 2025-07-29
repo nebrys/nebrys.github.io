@@ -4,4 +4,4 @@ title: SFW
 permalink: /sfw/
 ---
 
-SFW content here...
+Voici la section SFW avec du contenu safe-for-work.
