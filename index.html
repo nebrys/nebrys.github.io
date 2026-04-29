@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Knee-Safe Pro Log</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Knee-Safe Log">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIktuZWUtU2FmZSBQcm8gTG9nIiwKICAic2hvcnRfbmFtZSI6ICJLbmVlLVNhZmUiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzI1NjNlYiIsCiAgInRoZW1lX2NvbG9yIjogIiMyNTYzZWIiLAogICJpY29ucyI6IFt7CiAgICAic3JjIjogImRhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVVQUFBQUVBQUFBQkFDQVFBQUFBZ2I5Qmx0QUFBQUNYQklXWE1BQUFBREl3PT0iLAogICAgInNpemVzIjogIjE5MngxOTIiLAogICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogIH1dCn0=">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'kneesafe-v3';
+                    self.addEventListener('install', event => event.waitUntil(caches.open(CACHE_NAME)));
+                    self.addEventListener('fetch', event => event.respondWith(caches.match(event.request).then(r => r || fetch(event.request))));
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(blob));
+            });
+        }
+    </script>
+    <style>
+        :root {
+            --bg: #f3f4f6; --card: #ffffff; --primary: #2563eb; --secondary: #475569;
+            --success: #10b981; --danger: #ef4444; --text-main: #0f172a;
+            --text-muted: #64748b; --border: #e2e8f0; --superset-bg: #eff6ff;
+            --cue-bg: #f8fafc; --select-bg: #fff; --tab-inactive-bg: #e2e8f0;
+            --dot-bg: #f8fafc; --shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        body.dark {
+            --bg: #0f172a; --card: #1e293b; --primary: #3b82f6; --secondary: #94a3b8;
+            --success: #22c55e; --danger: #ef4444; --text-main: #e2e8f0;
+            --text-muted: #94a3b8; --border: #334155; --superset-bg: #1a2740;
+            --cue-bg: #1a2740; --select-bg: #1e293b; --tab-inactive-bg: #334155;
+            --dot-bg: #1e293b; --shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--text-main); margin: 0;
+            padding: 20px 20px 0; display: flex; flex-direction: column; align-items: center;
+            line-height: 1.5; transition: background 0.3s, color 0.3s;
+        }
+        .container { max-width: 600px; width: 100%; }
+        .header { text-align: center; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .header h1 { margin: 0; font-size: 1.4rem; color: var(--primary); }
+        .dark-toggle {
+            background: var(--card); border: 1px solid var(--border); color: var(--text-main);
+            padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.8rem;
+        }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab {
+            flex: 1; text-align: center; padding: 12px; background: var(--tab-inactive-bg);
+            border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--secondary); border: none;
+        }
+        .tab.active { background: var(--primary); color: white; }
+        .slides-wrapper { position: relative; width: 100%; border-radius: 16px; }
+        .slide {
+            display: none; background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px; min-height: 60vh; box-shadow: var(--shadow);
+            flex-direction: column; overflow-y: auto; max-height: 70vh;
+        }
+        .slide.active { display: flex; }
+        .slide-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; color: var(--primary); }
+        .cue-text { font-size: 0.85rem; color: var(--text-muted); font-style: italic; margin: 8px 0; background: var(--cue-bg); padding: 8px; border-radius: 6px; border-left: 3px solid var(--secondary); }
+        select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.9rem; background: var(--select-bg); color: var(--text-main); margin: 8px 0; }
+        .round-tracker, .set-tracker { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+        .round-dot, .set-dot {
+            width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-weight: 700; color: var(--secondary); background: var(--dot-bg); transition: 0.2s;
+        }
+        .round-dot.done, .set-dot.done { background: var(--success); border-color: var(--success); color: white; }
+        .inline-timer-row { display: flex; align-items: center; gap: 8px; margin: 10px 0; }
+        .inline-timer-btn {
+            background: var(--card); border: 1px solid var(--border); color: var(--text-main);
+            padding: 6px 12px; border-radius: 16px; font-weight: 600; font-size: 0.75rem; cursor: pointer;
+        }
+        .inline-timer-btn.counting { background: var(--primary); color: white; border-color: var(--primary); }
+        .inline-timer-count { font-weight: 700; font-size: 0.85rem; color: var(--primary); }
+        .stopwatch-box { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+        .stopwatch-display { font-size: 1rem; font-weight: 700; min-width: 60px; color: var(--primary); }
+        .stopwatch-btn {
+            background: var(--card); border: 1px solid var(--border); color: var(--text-main);
+            padding: 4px 10px; border-radius: 12px; font-weight: 600; font-size: 0.7rem; cursor: pointer;
+        }
+        .nav-buttons { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-next, .btn-back, .btn-save {
+            background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px;
+            font-weight: bold; font-size: 1rem; cursor: pointer; flex: 1; text-align: center;
+        }
+        .optional-toggle-row { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; }
+        .optional-toggle-btn {
+            background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 20px;
+            font-weight: 600; font-size: 0.8rem; cursor: pointer;
+        }
+        .optional-toggle-btn.off { background: var(--border); color: var(--text-muted); }
+        .history-item { border: 1px solid var(--border); background: var(--card); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+        .history-summary { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .history-details { padding: 0 15px 15px; background: var(--cue-bg); border-top: 1px solid var(--border); display: none; font-size: 0.9rem; }
+        .history-details.active { display: block; }
+        .btn-del { background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
+        .btn-secondary { background: var(--secondary); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+        .hidden { display: none !important; }
+        #toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 2000;
+            background: #1e293b; color: white; padding: 12px 24px; border-radius: 30px;
+            font-weight: 600; font-size: 0.9rem; opacity: 0; pointer-events: none; transition: opacity 0.35s;
+        }
+        #toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Knee-Safe Pro Log</h1>
+        <button class="dark-toggle" onclick="toggleDarkMode()" id="darkToggle">🌙 Dark</button>
+    </div>
+    <div class="tabs">
+        <button id="tab-workout" class="tab active" onclick="switchTab('workout')">Workout</button>
+        <button id="tab-history" class="tab" onclick="switchTab('history')">History</button>
+    </div>
+
+    <div id="workout-view">
+        <div class="slides-wrapper">
+            <!-- Slide 0: Warmup -->
+            <div class="slide active" id="slide-warmup">
+                <div class="slide-title">Warm‑Up (5–10 min)</div>
+                <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="toggleWarmupCheck()">
+                    <div id="warmupCheck" style="width:32px;height:32px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;"></div>
+                    <span>Cat‑Cow · Hip Circles · Leg Swings · Arm Circles</span>
+                </div>
+                <button class="btn-next" onclick="nextSlide()" style="margin-top:15px;">Start Workout →</button>
+            </div>
+
+            <!-- Slide 1: Superset A -->
+            <div class="slide" id="slide-supA">
+                <div class="slide-title">Superset A (3‑4 rounds)</div>
+                <div><strong>A1. Swiss Ball Push‑ups</strong> — 8‑15 reps</div>
+                <select onchange="handleSelectChange(this)" id="select-A1">
+                    <option value="L1" data-cue="Hands on ball, body straight.">Level 1: Hands on ball</option>
+                    <option value="L2" data-cue="Feet on ball, hands on floor.">Level 2: Decline</option>
+                    <option value="L3" data-cue="Hands on floor, hips high.">Level 3: Pike push‑up</option>
+                </select>
+                <div class="cue-text">Hands on ball, body straight.</div>
+                <div><strong>A2. Inverted Rows</strong> — 8‑12 reps</div>
+                <select onchange="handleSelectChange(this)" id="select-A2">
+                    <option value="L1" data-cue="Knees bent 90°, pull chest to bar.">Level 1: Knees bent</option>
+                    <option value="L2" data-cue="Legs partially straight.">Level 2: Legs partial</option>
+                    <option value="L3" data-cue="Legs fully straight.">Level 3: Legs straight</option>
+                    <option value="L4" data-cue="Feet on Swiss ball.">Level 4: Feet on ball</option>
+                </select>
+                <div class="cue-text">Knees bent 90°, pull chest to bar.</div>
+                <div>Rounds completed:</div>
+                <div class="round-tracker" id="rounds-A">
+                    <div class="round-dot" onclick="toggleRound(this,'A',4)">1</div>
+                    <div class="round-dot" onclick="toggleRound(this,'A',4)">2</div>
+                    <div class="round-dot" onclick="toggleRound(this,'A',4)">3</div>
+                    <div class="round-dot" onclick="toggleRound(this,'A',4)">4</div>
+                </div>
+                <div class="inline-timer-row">
+                    <button class="inline-timer-btn" id="inlineTimerA_btn" onclick="startInlineTimer('A',90)">Rest 90s</button>
+                    <span class="inline-timer-count" id="inlineTimerA_count"></span>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn-back" onclick="prevSlide()" disabled>← Back</button>
+                    <button class="btn-next" onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+
+            <!-- Slide 2: Superset B -->
+            <div class="slide" id="slide-supB">
+                <div class="slide-title">Superset B (3 rounds)</div>
+                <div><strong>B1. Single‑Leg RDL</strong> — 8‑12 /leg</div>
+                <select onchange="handleSelectChange(this)" id="select-B1">
+                    <option value="L1" data-cue="Bodyweight, hold bar for balance.">Level 1: Bodyweight</option>
+                    <option value="L2" data-cue="2kg dumbbell in opposite hand.">Level 2: 2kg</option>
+                    <option value="L3" data-cue="4kg both hands.">Level 3: 4kg</option>
+                </select>
+                <div class="cue-text">Bodyweight, hold bar for balance.</div>
+                <div><strong>B2. SL Glute Bridge</strong> — 10‑15 /leg</div>
+                <select onchange="handleSelectChange(this)" id="select-B2">
+                    <option value="L1" data-cue="Two‑leg bridge.">Level 1: Two‑leg</option>
+                    <option value="L2" data-cue="Single‑leg on floor.">Level 2: SL Floor</option>
+                    <option value="L3" data-cue="Foot on Swiss ball.">Level 3: SL Ball</option>
+                </select>
+                <div class="cue-text">Two‑leg bridge.</div>
+                <div>Rounds completed:</div>
+                <div class="round-tracker" id="rounds-B">
+                    <div class="round-dot" onclick="toggleRound(this,'B',3)">1</div>
+                    <div class="round-dot" onclick="toggleRound(this,'B',3)">2</div>
+                    <div class="round-dot" onclick="toggleRound(this,'B',3)">3</div>
+                </div>
+                <div class="inline-timer-row">
+                    <button class="inline-timer-btn" id="inlineTimerB_btn" onclick="startInlineTimer('B',90)">Rest 90s</button>
+                    <span class="inline-timer-count" id="inlineTimerB_count"></span>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn-back" onclick="prevSlide()">← Back</button>
+                    <button class="btn-next" onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+
+            <!-- Slide 3: Superset C (with stopwatches for both timed holds) -->
+            <div class="slide" id="slide-supC">
+                <div class="slide-title">Superset C (2‑3 rounds)</div>
+                <div><strong>C1. Ball Hamstring Press (Prone Hold)</strong> — hold 20‑30s</div>
+                <select onchange="handleSelectChange(this)" id="select-C1">
+                    <option value="L1" data-cue="Lying on stomach, ball between heels/glutes. Press heels into ball, hold.">Level 1: Both legs</option>
+                    <option value="L2" data-cue="Single‑leg press, hold time.">Level 2: Single leg</option>
+                </select>
+                <div class="cue-text">Lying on stomach, ball between heels/glutes. Press heels into ball, hold.</div>
+                <div class="stopwatch-box">
+                    <span class="stopwatch-display" id="hamstringTimerDisplay">0 s</span>
+                    <button class="stopwatch-btn" onclick="toggleStopwatch('hamstring')" id="hamstringTimerBtn">▶ Start</button>
+                    <button class="stopwatch-btn" onclick="resetStopwatch('hamstring')">↺ Reset</button>
+                </div>
+                <div><strong>C2. SL Low Hover</strong> — build to 45‑60s /leg</div>
+                <select onchange="handleSelectChange(this)" id="select-C2">
+                    <option value="L1" data-cue="Heel 2‑3in off floor, knee locked. Use stopwatch below.">Level 1: Build to 60s</option>
+                    <option value="L2" data-cue="2kg DB on lower thigh (not kneecap).">Level 2: Weighted (2kg)</option>
+                </select>
+                <div class="cue-text">Heel 2‑3in off floor, foot relaxed.</div>
+                <div class="stopwatch-box">
+                    <span class="stopwatch-display" id="hoverTimerDisplay">0 s</span>
+                    <button class="stopwatch-btn" onclick="toggleStopwatch('hover')" id="hoverTimerBtn">▶ Start</button>
+                    <button class="stopwatch-btn" onclick="resetStopwatch('hover')">↺ Reset</button>
+                </div>
+                <div>Rounds completed:</div>
+                <div class="round-tracker" id="rounds-C">
+                    <div class="round-dot" onclick="toggleRound(this,'C',3)">1</div>
+                    <div class="round-dot" onclick="toggleRound(this,'C',3)">2</div>
+                    <div class="round-dot" onclick="toggleRound(this,'C',3)">3</div>
+                </div>
+                <div class="inline-timer-row">
+                    <button class="inline-timer-btn" id="inlineTimerC_btn" onclick="startInlineTimer('C',90)">Rest 90s</button>
+                    <span class="inline-timer-count" id="inlineTimerC_count"></span>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn-back" onclick="prevSlide()">← Back</button>
+                    <button class="btn-next" onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+
+            <!-- Slide 4: Core Superset (stopwatch added to Hollow Body Hold) -->
+            <div class="slide" id="slide-core">
+                <div class="slide-title">Core Superset (3 rounds)</div>
+                <div><strong>D1. Stir‑the‑Pot</strong> — 10 circles each way</div>
+                <select onchange="handleSelectChange(this)" id="select-D1">
+                    <option value="L1" data-cue="Forearms on ball, plank.">Level 1: Standard</option>
+                    <option value="L2" data-cue="Larger circles/slower.">Level 2: Intense</option>
+                </select>
+                <div class="cue-text">Forearms on ball, plank.</div>
+                <div><strong>D2. Hollow Body Hold</strong> — 20‑30s</div>
+                <select onchange="handleSelectChange(this)" id="select-D2">
+                    <option value="L1" data-cue="Lower back pressed to floor, arms overhead.">Level 1: Arms overhead</option>
+                    <option value="L2" data-cue="Arms by sides (easier).">Level 2: Easier</option>
+                </select>
+                <div class="cue-text">Lower back pressed to floor.</div>
+                <div class="stopwatch-box">
+                    <span class="stopwatch-display" id="hollowTimerDisplay">0 s</span>
+                    <button class="stopwatch-btn" onclick="toggleStopwatch('hollow')" id="hollowTimerBtn">▶ Start</button>
+                    <button class="stopwatch-btn" onclick="resetStopwatch('hollow')">↺ Reset</button>
+                </div>
+                <div>Rounds completed:</div>
+                <div class="round-tracker" id="rounds-core">
+                    <div class="round-dot" onclick="toggleRound(this,'core',3)">1</div>
+                    <div class="round-dot" onclick="toggleRound(this,'core',3)">2</div>
+                    <div class="round-dot" onclick="toggleRound(this,'core',3)">3</div>
+                </div>
+                <div class="inline-timer-row">
+                    <button class="inline-timer-btn" id="inlineTimercore_btn" onclick="startInlineTimer('core',60)">Rest 60s</button>
+                    <span class="inline-timer-count" id="inlineTimercore_count"></span>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn-back" onclick="prevSlide()">← Back</button>
+                    <button class="btn-next" onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+
+            <!-- Slide 5: Mandatory Finishers -->
+            <div class="slide" id="slide-finishers">
+                <div class="slide-title">Mandatory Finishers</div>
+                <div>
+                    <strong>1. DB Lateral Raise</strong> 2×15‑20
+                    <div class="set-tracker" id="sets-f1" data-timer="f1">
+                        <div class="set-dot" onclick="toggleSet(this)">1</div>
+                        <div class="set-dot" onclick="toggleSet(this)">2</div>
+                    </div>
+                    <div class="inline-timer-row">
+                        <button class="inline-timer-btn" id="inlineTimerf1_btn" onclick="startInlineTimer('f1',60)">Rest 60s</button>
+                        <span class="inline-timer-count" id="inlineTimerf1_count"></span>
+                    </div>
+                </div>
+                <div style="margin-top:10px;">
+                    <strong>2. Prone Rear Fly</strong> 2×12‑15
+                    <div class="set-tracker" id="sets-f2" data-timer="f2">
+                        <div class="set-dot" onclick="toggleSet(this)">1</div>
+                        <div class="set-dot" onclick="toggleSet(this)">2</div>
+                    </div>
+                    <div class="inline-timer-row">
+                        <button class="inline-timer-btn" id="inlineTimerf2_btn" onclick="startInlineTimer('f2',60)">Rest 60s</button>
+                        <span class="inline-timer-count" id="inlineTimerf2_count"></span>
+                    </div>
+                </div>
+                <div style="margin-top:10px;">
+                    <strong>3. Hip Control</strong> 2 sets
+                    <select onchange="handleSelectChange(this)" id="select-HIP">
+                        <option value="SideAbduction">Side‑Lying Hip Abduction</option>
+                        <option value="Clamshell">Clamshell</option>
+                    </select>
+                    <div class="set-tracker" id="sets-f3" data-timer="f3">
+                        <div class="set-dot" onclick="toggleSet(this)">1</div>
+                        <div class="set-dot" onclick="toggleSet(this)">2</div>
+                    </div>
+                    <div class="inline-timer-row">
+                        <button class="inline-timer-btn" id="inlineTimerf3_btn" onclick="startInlineTimer('f3',60)">Rest 60s</button>
+                        <span class="inline-timer-count" id="inlineTimerf3_count"></span>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn-back" onclick="prevSlide()">← Back</button>
+                    <button class="btn-next" onclick="nextSlide()">Next →</button>
+                </div>
+            </div>
+
+            <!-- Slide 6: Optional Finishers -->
+            <div class="slide" id="slide-optional">
+                <div class="slide-title">Optional Finishers</div>
+                <div id="optional-content"></div>
+                <button class="btn-save" onclick="saveWorkout()">💾 Save Workout</button>
+                <div class="nav-buttons" style="margin-top:5px;">
+                    <button class="btn-back" onclick="prevSlide()">← Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="history-view" class="hidden">
+        <div style="font-size:1.2rem;font-weight:700;margin:1rem 0;color:var(--secondary);border-bottom:2px solid var(--border);padding-bottom:5px;">Training History</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <button class="btn-secondary" style="background:var(--success);" onclick="keepLastN(10)">📋 Keep Last 10</button>
+            <button class="btn-secondary" style="background:var(--danger);" onclick="clearAllHistory()">🗑️ Wipe All</button>
+        </div>
+        <div id="history-list"></div>
+    </div>
+</div>
+<div id="toast"></div>
+
+<script>
+    // ---- Audio beep ----
+    function playBeep() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.value = 880; osc.type = 'sine'; gain.gain.value = 0.3;
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.15);
+        } catch(e) {}
+    }
+
+    // ---- Dark mode ----
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        document.getElementById('darkToggle').innerHTML = isDark ? '☀️ Light' : '🌙 Dark';
+        localStorage.setItem('darkMode', isDark ? '1' : '0');
+    }
+    if (localStorage.getItem('darkMode') === '1') {
+        document.body.classList.add('dark');
+        document.getElementById('darkToggle').innerHTML = '☀️ Light';
+    }
+
+    // ---- Toast ----
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // ---- Warmup ----
+    function toggleWarmupCheck() {
+        const check = document.getElementById('warmupCheck');
+        check.classList.toggle('done');
+        check.innerHTML = check.classList.contains('done') ? '✓' : '';
+    }
+
+    // ---- Slide navigation ----
+    let currentSlide = 0;
+    const slides = ['slide-warmup','slide-supA','slide-supB','slide-supC','slide-core','slide-finishers','slide-optional'];
+    function showSlide(index) {
+        slides.forEach(id => document.getElementById(id).classList.remove('active'));
+        document.getElementById(slides[index]).classList.add('active');
+        currentSlide = index;
+        updateBackButton();
+    }
+    function updateBackButton() {
+        const backBtns = document.querySelectorAll('.btn-back');
+        backBtns.forEach(btn => btn.disabled = (currentSlide === 0));
+    }
+    window.nextSlide = function() {
+        if (currentSlide < slides.length-1) showSlide(currentSlide+1);
+    };
+    window.prevSlide = function() {
+        if (currentSlide > 0) showSlide(currentSlide-1);
+    };
+
+    // ---- Inline timers (count‑down rest) ----
+    const inlineTimers = {};
+    function startInlineTimer(id, seconds) {
+        const btn = document.getElementById(`inlineTimer${id}_btn`);
+        const countEl = document.getElementById(`inlineTimer${id}_count`);
+        if (!btn || !countEl) return;
+        if (inlineTimers[id] && inlineTimers[id].running) {
+            clearInterval(inlineTimers[id].interval);
+            inlineTimers[id].running = false;
+            btn.classList.remove('counting'); btn.textContent = `Rest ${seconds}s`;
+            countEl.textContent = ''; return;
+        }
+        let remaining = seconds;
+        inlineTimers[id] = { running: true, interval: null };
+        btn.classList.add('counting'); btn.textContent = 'Pause'; countEl.textContent = remaining+'s';
+        inlineTimers[id].interval = setInterval(() => {
+            remaining--;
+            countEl.textContent = remaining+'s';
+            if (remaining <= 0) {
+                clearInterval(inlineTimers[id].interval);
+                inlineTimers[id].running = false;
+                btn.classList.remove('counting'); btn.textContent = `Rest ${seconds}s`;
+                countEl.textContent = '';
+                playBeep(); showToast(`⏰ Rest done!`);
+            }
+        }, 1000);
+    }
+
+    // ---- Stopwatches (count‑up for timed holds) ----
+    const stopwatches = {
+        hover: { sec: 0, interval: null },
+        hamstring: { sec: 0, interval: null },
+        hollow: { sec: 0, interval: null }
+    };
+    window.toggleStopwatch = function(id) {
+        const sw = stopwatches[id];
+        if (!sw) return;
+        const display = document.getElementById(id==='hover' ? 'hoverTimerDisplay' : (id==='hamstring' ? 'hamstringTimerDisplay' : 'hollowTimerDisplay'));
+        const btn = document.getElementById(id==='hover' ? 'hoverTimerBtn' : (id==='hamstring' ? 'hamstringTimerBtn' : 'hollowTimerBtn'));
+        if (sw.interval) {
+            // Stop
+            clearInterval(sw.interval);
+            sw.interval = null;
+            btn.textContent = '▶ Start';
+        } else {
+            // Start
+            sw.interval = setInterval(() => {
+                sw.sec++;
+                display.textContent = sw.sec + ' s';
+            }, 1000);
+            btn.textContent = '⏸ Stop';
+        }
+    };
+    window.resetStopwatch = function(id) {
+        const sw = stopwatches[id];
+        if (!sw) return;
+        if (sw.interval) {
+            clearInterval(sw.interval);
+            sw.interval = null;
+        }
+        sw.sec = 0;
+        const display = document.getElementById(id==='hover' ? 'hoverTimerDisplay' : (id==='hamstring' ? 'hamstringTimerDisplay' : 'hollowTimerDisplay'));
+        const btn = document.getElementById(id==='hover' ? 'hoverTimerBtn' : (id==='hamstring' ? 'hamstringTimerBtn' : 'hollowTimerBtn'));
+        display.textContent = '0 s';
+        btn.textContent = '▶ Start';
+    };
+
+    // ---- Round & set toggles (rest timer auto‑start) ----
+    function toggleRound(el, group, max) {
+        el.classList.toggle('done');
+        if (el.classList.contains('done')) {
+            startInlineTimer(group, group==='core' ? 60 : 90);
+        } else {
+            if (inlineTimers[group] && inlineTimers[group].running) {
+                clearInterval(inlineTimers[group].interval);
+                inlineTimers[group].running = false;
+                const btn = document.getElementById(`inlineTimer${group}_btn`);
+                if (btn) btn.classList.remove('counting');
+                const countEl = document.getElementById(`inlineTimer${group}_count`);
+                if (countEl) countEl.textContent = '';
+            }
+        }
+    }
+    function toggleSet(el) {
+        el.classList.toggle('done');
+        const tracker = el.closest('.set-tracker');
+        if (!tracker) return;
+        const timerId = tracker.getAttribute('data-timer');
+        if (!timerId) return;
+        if (el.classList.contains('done')) {
+            startInlineTimer(timerId, 60);
+        } else {
+            if (inlineTimers[timerId] && inlineTimers[timerId].running) {
+                clearInterval(inlineTimers[timerId].interval);
+                inlineTimers[timerId].running = false;
+                const btn = document.getElementById(`inlineTimer${timerId}_btn`);
+                if (btn) btn.classList.remove('counting');
+                const countEl = document.getElementById(`inlineTimer${timerId}_count`);
+                if (countEl) countEl.textContent = '';
+            }
+        }
+    }
+
+    // ---- Progression persistence ----
+    function handleSelectChange(sel) {
+        localStorage.setItem(`prog_${sel.id}`, sel.value);
+        const cue = sel.options[sel.selectedIndex].getAttribute('data-cue');
+        if (cue && sel.nextElementSibling && sel.nextElementSibling.classList.contains('cue-text'))
+            sel.nextElementSibling.innerText = cue;
+    }
+    function loadProgression() {
+        document.querySelectorAll('select').forEach(sel => {
+            const saved = localStorage.getItem(`prog_${sel.id}`);
+            if (saved) {
+                sel.value = saved;
+                const cue = sel.options[sel.selectedIndex].getAttribute('data-cue');
+                if (cue && sel.nextElementSibling && sel.nextElementSibling.classList.contains('cue-text'))
+                    sel.nextElementSibling.innerText = cue;
+            }
+        });
+    }
+
+    // ---- Optional finishers ----
+    const optionalExercises = [
+        { id:'opt1', name:'Lying Triceps Extension', reps:'2×12-15', cue:'Elbows stationary' },
+        { id:'opt2', name:'Wall Handstand/Pike Hold', reps:'2×20-30s', cue:'Push floor away' },
+        { id:'opt3', name:'SL Glute Bridge Iso Hold', reps:'2×30-60s', cue:'Hips level' }
+    ];
+    function getOptionalIncluded() { return JSON.parse(localStorage.getItem('optionalIncluded')||'{}'); }
+    function setOptionalIncluded(id, inc) {
+        const obj = getOptionalIncluded(); obj[id] = inc;
+        localStorage.setItem('optionalIncluded', JSON.stringify(obj));
+    }
+    window.toggleOptional = function(id) {
+        const obj = getOptionalIncluded(); obj[id] = !obj[id];
+        localStorage.setItem('optionalIncluded', JSON.stringify(obj));
+        renderOptionalContent();
+    };
+    function renderOptionalContent() {
+        const container = document.getElementById('optional-content');
+        const included = getOptionalIncluded();
+        container.innerHTML = optionalExercises.map(ex => {
+            const active = included[ex.id] || false;
+            return `
+            <div style="margin-bottom:10px;">
+                <div class="optional-toggle-row">
+                    <span>${ex.name} (${ex.reps})</span>
+                    <button class="optional-toggle-btn ${active?'':'off'}" onclick="toggleOptional('${ex.id}')">${active?'Remove':'Add'}</button>
+                </div>
+                ${active ? `
+                <div class="cue-text">${ex.cue}</div>
+                <div class="set-tracker" id="sets-${ex.id}" data-timer="${ex.id}">
+                    <div class="set-dot" onclick="toggleSet(this)">1</div>
+                    <div class="set-dot" onclick="toggleSet(this)">2</div>
+                </div>
+                <div class="inline-timer-row">
+                    <button class="inline-timer-btn" id="inlineTimer${ex.id}_btn" onclick="startInlineTimer('${ex.id}',60)">Rest 60s</button>
+                    <span class="inline-timer-count" id="inlineTimer${ex.id}_count"></span>
+                </div>` : ''}
+            </div>`;
+        }).join('');
+    }
+
+    // ---- Save workout ----
+    function saveWorkout() {
+        const sessionData = [];
+        let totalSets = 0;
+        const groups = [
+            {group:'A', max:4, exercises:['Swiss Ball Push-ups','Inverted Rows']},
+            {group:'B', max:3, exercises:['Single-Leg RDL','SL Glute Bridge']},
+            {group:'C', max:3, exercises:['Ball Hamstring Press','SL Low Hover']},
+            {group:'core', max:3, exercises:['Stir-the-Pot','Hollow Body Hold']}
+        ];
+        groups.forEach(({group, max, exercises}) => {
+            const container = document.getElementById(`rounds-${group}`);
+            if (!container) return;
+            const rounds = container.querySelectorAll('.round-dot.done').length;
+            if (rounds > 0) {
+                exercises.forEach(name => {
+                    sessionData.push({ name, sets: rounds, prog: getProgForGroup(group) });
+                    totalSets += rounds;
+                });
+            }
+        });
+        const finisherDefs = [
+            {tracker:'sets-f1', name:'DB Lateral Raise'},
+            {tracker:'sets-f2', name:'Prone Rear Fly'},
+            {tracker:'sets-f3', name:'Hip Control'}
+        ];
+        finisherDefs.forEach(f => {
+            const done = document.querySelectorAll(`#${f.tracker} .set-dot.done`).length;
+            if (done > 0) {
+                sessionData.push({ name: f.name, sets: done, prog: 'Standard' });
+                totalSets += done;
+            }
+        });
+        const included = getOptionalIncluded();
+        optionalExercises.forEach(ex => {
+            if (included[ex.id]) {
+                const done = document.querySelectorAll(`#sets-${ex.id} .set-dot.done`).length;
+                if (done > 0) {
+                    sessionData.push({ name: ex.name, sets: done, prog: 'N/A' });
+                    totalSets += done;
+                }
+            }
+        });
+        const warmupDone = document.getElementById('warmupCheck').classList.contains('done');
+        if (totalSets === 0 && !warmupDone) { showToast('Nothing to save!'); return; }
+        const entry = {
+            id: Date.now(),
+            date: new Date().toLocaleString([], { weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }),
+            totalSets, warmupDone, details: sessionData
+        };
+        let history = JSON.parse(localStorage.getItem('kneeRoutineV3')||'[]');
+        history.unshift(entry);
+        localStorage.setItem('kneeRoutineV3', JSON.stringify(history));
+        // Reset UI
+        document.querySelectorAll('.set-dot.done, .round-dot.done').forEach(d => d.classList.remove('done'));
+        document.getElementById('warmupCheck').classList.remove('done');
+        document.getElementById('warmupCheck').innerHTML = '';
+        // Reset all stopwatches
+        ['hover','hamstring','hollow'].forEach(id => resetStopwatch(id));
+        showToast(`💾 Saved! ${totalSets} sets ${warmupDone?'+ warmup':''}`);
+        showSlide(0);
+        renderOptionalContent();
+    }
+    function getProgForGroup(group) {
+        if (group === 'A') return document.querySelector('#select-A1').selectedOptions[0].text;
+        if (group === 'B') return document.querySelector('#select-B1').selectedOptions[0].text;
+        if (group === 'C') return document.querySelector('#select-C1').selectedOptions[0].text;
+        if (group === 'core') return document.querySelector('#select-D1').selectedOptions[0].text;
+        return 'Standard';
+    }
+
+    // ---- Tab switching ----
+    function switchTab(tab) {
+        document.getElementById('tab-workout').classList.toggle('active', tab==='workout');
+        document.getElementById('tab-history').classList.toggle('active', tab==='history');
+        document.getElementById('workout-view').classList.toggle('hidden', tab!=='workout');
+        document.getElementById('history-view').classList.toggle('hidden', tab!=='history');
+        if (tab === 'history') renderHistory();
+    }
+    window.switchTab = switchTab;
+
+    // ---- History ----
+    function renderHistory() {
+        const history = JSON.parse(localStorage.getItem('kneeRoutineV3')||'[]');
+        const list = document.getElementById('history-list');
+        if (history.length === 0) {
+            list.innerHTML = "<p style='text-align:center; padding:30px; color:var(--text-muted)'>No sessions recorded yet.</p>";
+            return;
+        }
+        list.innerHTML = history.map(entry => `
+            <div class="history-item">
+                <div class="history-summary" onclick="toggleDetails(${entry.id})">
+                    <div>
+                        <div style="font-weight:bold; font-size:1.1rem">${entry.date}</div>
+                        <div style="color:var(--primary); font-size:0.85rem; font-weight:bold">${entry.totalSets} Sets Total${entry.warmupDone?' · Warmup ✓':''}</div>
+                    </div>
+                    <button class="btn-del" onclick="event.stopPropagation();deleteEntry(${entry.id})">DELETE</button>
+                </div>
+                <div id="details-${entry.id}" class="history-details">
+                    <hr style="border:0; border-top:1px solid var(--border); margin:10px 0">
+                    ${(entry.details||[]).map(d => `
+                        <div style="margin-bottom:6px">
+                            <span style="font-weight:700">${d.name}:</span> ${d.sets} sets<br>
+                            <span style="color:var(--text-muted); font-size:0.8rem">${d.prog}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+    window.toggleDetails = (id) => document.getElementById(`details-${id}`)?.classList.toggle('active');
+    window.deleteEntry = (id) => {
+        if (!confirm('Delete this session?')) return;
+        let history = JSON.parse(localStorage.getItem('kneeRoutineV3')||'[]');
+        history = history.filter(i => i.id !== id);
+        localStorage.setItem('kneeRoutineV3', JSON.stringify(history));
+        renderHistory(); showToast('🗑️ Session deleted');
+    };
+    function keepLastN(n) {
+        let history = JSON.parse(localStorage.getItem('kneeRoutineV3')||'[]');
+        if (history.length <= n) { showToast(`Only ${history.length} entries`); return; }
+        const removed = history.length - n;
+        history = history.slice(0, n);
+        localStorage.setItem('kneeRoutineV3', JSON.stringify(history));
+        renderHistory(); showToast(`📋 Kept last ${n} · removed ${removed}`);
+    }
+    function clearAllHistory() {
+        if (!confirm('Delete ALL training history?')) return;
+        if (!confirm('Absolutely sure?')) return;
+        localStorage.removeItem('kneeRoutineV3');
+        renderHistory(); showToast('🗑️ All history wiped');
+    }
+    window.keepLastN = keepLastN;
+    window.clearAllHistory = clearAllHistory;
+
+    // ---- Init ----
+    loadProgression();
+    renderOptionalContent();
+    showSlide(0);
+    updateBackButton();
+</script>
+</body>
+</html>
