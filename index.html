@@ -62,8 +62,11 @@
         .lib-item small { display: block; color: var(--text-muted); font-size: 0.75rem; }
 
         .nav-buttons { margin-top: auto; display: flex; gap: 10px; padding-top: 15px; }
-        .btn-primary { flex: 1; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; }
-        .btn-secondary { flex: 0.5; padding: 15px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: bold; }
+        .btn-primary { flex: 1; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        .btn-secondary { flex: 0.5; padding: 15px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .btn-ghost { width: 100%; padding: 10px; background: transparent; color: var(--text-muted); border: 1px dashed var(--border); border-radius: 12px; margin-top: 15px; font-size: 0.85rem; cursor: pointer; }
+        .btn-ghost:active { background: var(--cue-bg); color: var(--primary); border-color: var(--primary); }
+        
         .hidden { display: none; }
         #toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
@@ -202,10 +205,13 @@
         <!-- Snack Slide -->
         <div class="slide" id="snack-slide">
              <div class="slide-title" id="snack-title">Random Snack</div>
-             <div id="snack-body" style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+             <div id="snack-body" style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding: 20px 0;">
                 <h2 id="snack-ex-name" style="margin:0; font-size:1.8rem; color:var(--primary)"></h2>
                 <p id="snack-ex-format" style="font-weight:bold; color:var(--secondary); font-size:1.2rem;"></p>
-                <div style="margin-top:20px; font-size: 0.8rem; color: var(--text-muted);" id="snack-progress">Step 1 of 7</div>
+                <div id="snack-reroll-container">
+                    <button class="btn-ghost" onclick="rerollSnack()">🔄 Not This One</button>
+                </div>
+                <div style="margin-top:30px; font-size: 0.8rem; color: var(--text-muted);" id="snack-progress">Step 1 of 7</div>
              </div>
              <div class="nav-buttons">
                 <button class="btn-secondary" onclick="closeLib()">Quit</button>
@@ -263,7 +269,6 @@
         const icon = header.querySelector('span');
         const isOpen = content.classList.contains('open');
         
-        // Don't auto-close others to allow browsing
         if(isOpen) {
             content.classList.remove('open');
             icon.innerText = '＋';
@@ -275,19 +280,21 @@
 
     // Snack Logic
     const buckets = [
-        { name: "Bucket A: Push", ex: ["Scapular push-ups", "Wall push-ups", "Banded fly"], type: "dynamic" },
-        { name: "Bucket B: Pull", ex: ["Band pull-aparts", "Lawn-mower rows", "Seated rows", "Straight-arm pullbacks"], type: "dynamic" },
-        { name: "Bucket C: Prehab", ex: ["Rotator cuff work", "Y-T-W-L", "Banded shrugs"], type: "dynamic" },
-        { name: "Bucket D: Core", ex: ["Dead Bugs", "Plank pull-through", "Shoulder taps", "Up-down planks"], type: "dynamic" },
-        { name: "Bucket E: Hips", ex: ["Hip abduction", "Clamshells", "Reverse hyper"], type: "dynamic" },
-        { name: "Bucket F: Quad", ex: ["Lying SLR", "Ball wall press"], type: "isometric" },
-        { name: "Bucket G: Mobility", ex: ["Cat-Cow", "Cobra", "Needle-thread", "Single-leg balance"], type: "mobility" }
+        { id: 0, name: "Bucket A: Push", ex: ["Scapular push-ups", "Wall push-ups", "Banded chest fly"], type: "dynamic" },
+        { id: 1, name: "Bucket B: Pull", ex: ["Band pull-aparts", "Lawn-mower rows", "Seated rows", "Straight-arm pullbacks", "Feet-anchored band rows"], type: "dynamic" },
+        { id: 2, name: "Bucket C: Prehab", ex: ["External Rotator work", "Y-T-W-L", "Banded shrugs"], type: "dynamic" },
+        { id: 3, name: "Bucket D: Core", ex: ["Dead Bugs", "Plank pull-through", "Shoulder taps", "Up-down planks"], type: "dynamic" },
+        { id: 4, name: "Bucket E: Hips", ex: ["Side-lying Abduction", "Clamshells", "Reverse hyper"], type: "dynamic" },
+        { id: 5, name: "Bucket F: Quad", ex: ["Lying SLR", "Ball wall press"], type: "isometric" },
+        { id: 6, name: "Bucket G: Mobility", ex: ["Cat-Cow", "Cobra", "Needle-thread", "Single-leg balance"], type: "mobility" }
     ];
+    
     let snackIndex = 0;
     let snackList = [];
 
     function startSnack() {
         snackList = buckets.map(b => ({
+            bucketId: b.id,
             cat: b.name,
             name: b.ex[Math.floor(Math.random() * b.ex.length)],
             format: b.type === "dynamic" ? "10-15 Reps" : b.type === "isometric" ? "25-40s Hold" : "45-60s Flow"
@@ -295,23 +302,43 @@
         snackIndex = 0;
         document.getElementById('menu').classList.remove('active');
         document.getElementById('snack-slide').classList.add('active');
-        runSnackStep();
+        updateSnackDisplay();
     }
 
-    function runSnackStep() {
-        if(snackIndex >= snackList.length) {
-            showToast("Snack Completed! 🍎");
-            closeLib();
-            return;
-        }
+    function rerollSnack() {
+        // Find current step in list (since snackIndex incremented at end of runSnackStep, it's actually current - 1)
+        // However, startSnack calls display immediately, so snackIndex is 0 when first shown.
+        const currentStep = snackIndex; 
+        const bucket = buckets.find(b => b.id === snackList[currentStep].bucketId);
+        
+        let newEx;
+        // Keep rolling until we get a different one (if more than 1 exists)
+        do {
+            newEx = bucket.ex[Math.floor(Math.random() * bucket.ex.length)];
+        } while (bucket.ex.length > 1 && newEx === snackList[currentStep].name);
+
+        snackList[currentStep].name = newEx;
+        updateSnackDisplay();
+        showToast("Swapped!");
+    }
+
+    function updateSnackDisplay() {
         const item = snackList[snackIndex];
         document.getElementById('snack-title').innerText = item.cat;
         document.getElementById('snack-ex-name').innerText = item.name;
         document.getElementById('snack-ex-format').innerText = item.format;
         document.getElementById('snack-progress').innerText = `Step ${snackIndex + 1} of 7`;
-        
+        document.getElementById('snack-btn').innerText = snackIndex === 6 ? "Finish ✓" : "Next Exercise →";
+    }
+
+    function runSnackStep() {
         snackIndex++;
-        document.getElementById('snack-btn').innerText = snackIndex === 7 ? "Finish ✓" : "Next Exercise →";
+        if(snackIndex >= snackList.length) {
+            showToast("Snack Completed! 🍎");
+            closeLib();
+            return;
+        }
+        updateSnackDisplay();
     }
 </script>
 </body>
