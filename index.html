@@ -135,6 +135,10 @@
                     Everyday Only ⚡
                     <span>Just the daily minimums</span>
                 </button>
+                <button class="path-btn" onclick="startSnack()" style="margin-top: 20px; border-color: var(--success);">
+                    Random Fitness Snack 🎲
+                    <span>Quick randomized sequence from buckets A-G</span>
+                </button>
             </div>
 
             <!-- Slide 1: Warmup & Everyday -->
@@ -378,6 +382,20 @@
                 </div>
             </div>
 
+            <!-- Slide 8: Random Snack -->
+            <div class="slide" id="slide-snack" data-type="snack">
+                <div class="slide-title" id="snack-category" style="font-size: 1rem; color: var(--text-muted); font-weight: bold; text-align: center;">Category</div>
+                <div style="text-align: center; margin: auto 0; padding: 20px 0; display: flex; flex-direction: column; justify-content: center; flex: 1;">
+                    <h2 id="snack-name" style="color: var(--primary); font-size: 1.8rem; margin-bottom: 20px; line-height: 1.3;">Exercise Name</h2>
+                    <div id="snack-format" style="font-size: 1.3rem; font-weight: bold; color: var(--secondary); background: var(--cue-bg); padding: 15px 25px; border-radius: 12px; display: inline-block; border: 2px solid var(--border); margin: 0 auto;">Format</div>
+                </div>
+                
+                <div class="nav-buttons" style="margin-top: auto;">
+                    <button class="btn-secondary" onclick="endSnack()" style="flex: 0.5;">Quit</button>
+                    <button class="btn-next" id="snack-next-btn" onclick="nextSnackStep()">Next →</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -442,6 +460,123 @@
         const check = document.getElementById(id);
         check.classList.toggle('done');
         check.innerHTML = check.classList.contains('done') ? '✓' : '';
+    }
+
+    // ---- Random Fitness Snack Logic ----
+    const snackBuckets = [
+        {
+            category: "Upper Body Push (light)",
+            exercises: [
+                { name: "Scapular push-ups", type: "dynamic" },
+                { name: "Wall push-ups", type: "dynamic" },
+                { name: "Banded chest fly", type: "dynamic" }
+            ]
+        },
+        {
+            category: "Upper Body Pull / Shoulder Pull",
+            exercises: [
+                { name: "Seated band straight-arm pullbacks", type: "dynamic" },
+                { name: "Band pull-aparts", type: "dynamic" },
+                { name: "Band lawn-mower rows", type: "dynamic" },
+                { name: "Feet Band-resisted rows", type: "dynamic" }
+            ]
+        },
+        {
+            category: "Shoulder & Scapular Prehab",
+            exercises: [
+                { name: "External rotator cuff work", type: "dynamic" },
+                { name: "Band pull-aparts", type: "dynamic" },
+                { name: "Y-T-W-L", type: "isometric" },
+                { name: "Banded shrugs", type: "dynamic" }
+            ]
+        },
+        {
+            category: "Core (anti-extension / anti-rotation)",
+            exercises: [
+                { name: "Dead Bugs", type: "dynamic" },
+                { name: "Plank with DB pull-through", type: "dynamic" },
+                { name: "Up-down planks", type: "dynamic" },
+                { name: "Plank shoulder taps", type: "dynamic" }
+            ]
+        },
+        {
+            category: "Hips & Glute Medius",
+            exercises: [
+                { name: "Side-lying hip abduction", type: "dynamic" },
+                { name: "Clamshells", type: "dynamic" },
+                { name: "Reverse hyperextension", type: "dynamic" }
+            ]
+        },
+        {
+            category: "Quad Isometrics / Knee Rehab",
+            exercises: [
+                { name: "Lying SLR", type: "isometric" },
+                { name: "Ball wall press leg extension", type: "isometric" }
+            ]
+        },
+        {
+            category: "Mobility / Proprioception",
+            exercises: [
+                { name: "Cat-Cow", type: "mobility" },
+                { name: "Single-leg balance", type: "mobility" },
+                { name: "Thread-the-needle", type: "mobility" },
+                { name: "Prone press-up (Cobra)", type: "mobility" }
+            ]
+        }
+    ];
+
+    let currentSnackSequence = [];
+    let currentSnackIndex = 0;
+
+    function getFormatText(type) {
+        if(type === 'dynamic') return '10‑15 reps';
+        if(type === 'isometric') return '25‑40 seconds hold';
+        if(type === 'mobility') return '45‑60s continuous movement';
+        return '';
+    }
+
+    function startSnack() {
+        currentSnackSequence = snackBuckets.map(bucket => {
+            const randomEx = bucket.exercises[Math.floor(Math.random() * bucket.exercises.length)];
+            return { category: bucket.category, exercise: randomEx };
+        });
+        currentSnackIndex = 0;
+        
+        document.querySelectorAll('.slide').forEach(el => el.classList.remove('active'));
+        document.getElementById('slide-snack').classList.add('active');
+        renderSnackStep();
+    }
+
+    function renderSnackStep() {
+        const step = currentSnackSequence[currentSnackIndex];
+        const letter = String.fromCharCode(65 + currentSnackIndex); // Generates A, B, C, etc.
+        document.getElementById('snack-category').innerText = `Bucket ${letter}: ${step.category}`;
+        document.getElementById('snack-name').innerText = step.exercise.name;
+        document.getElementById('snack-format').innerText = getFormatText(step.exercise.type);
+        
+        const nextBtn = document.getElementById('snack-next-btn');
+        if (currentSnackIndex === 6) { // Bucket G is index 6
+            nextBtn.innerText = 'DONE ✓';
+            nextBtn.style.backgroundColor = 'var(--success)';
+        } else {
+            nextBtn.innerText = 'Next →';
+            nextBtn.style.backgroundColor = 'var(--primary)';
+        }
+    }
+
+    function nextSnackStep() {
+        if (currentSnackIndex < 6) {
+            currentSnackIndex++;
+            renderSnackStep();
+        } else {
+            endSnack();
+            showToast('🎉 Fitness Snack completed!');
+        }
+    }
+
+    function endSnack() {
+        document.getElementById('slide-snack').classList.remove('active');
+        document.getElementById('slide-select').classList.add('active');
     }
 
     // ---- Slide navigation Logic ----
