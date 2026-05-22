@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>ULPPL Tracker</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏋️‍♂️</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏋️‍♂️</text></svg>">
+	<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏋️‍♂️</text></svg>">
+	<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏋️‍♂️</text></svg>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#2563eb">
@@ -25,7 +25,8 @@
         body { background: var(--bg); color: var(--text-main); transition: background 0.3s, color 0.3s; padding-bottom: 120px; }
         
         header { background: var(--card); padding: 1rem; text-align: center; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        h1 { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+        h1 { font-size: 1.15rem; font-weight: 700; color: var(--primary); flex: 1; text-align: center; }
+        .header-actions { display: flex; gap: 0.25rem; }
         .icon-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-main); padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
         .icon-btn:hover { background: var(--bg); }
 
@@ -41,17 +42,20 @@
 
         /* Exercise Cards */
         .card { background: var(--card); border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow); border: 1px solid var(--border); }
-        .exo-title { font-weight: 700; font-size: 1.15rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; }
+        .exo-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; gap: 0.5rem; }
+        .exo-title { font-weight: 700; font-size: 1.15rem; line-height: 1.3; }
+        .btn-rename { background: none; border: none; font-size: 1rem; cursor: pointer; opacity: 0.6; padding: 0.2rem; transition: opacity 0.2s; }
+        .btn-rename:hover { opacity: 1; }
         .exo-meta-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
         .exo-meta { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); background: var(--bg); padding: 0.35rem 0.65rem; border-radius: 8px; display: flex; align-items: center; gap: 0.25rem; }
         
         /* Reps Selector Layout */
         .rep-picker-zone { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 1rem; }
         .rep-label { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); }
-        .counter-tool { display: flex; align-items: center; gap: 0.75rem; }
-        .btn-counter { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); color: var(--text-main); font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); }
-        .btn-counter:active { transform: scale(0.9); }
-        .rep-display { font-size: 1.2rem; font-weight: 700; min-width: 45px; text-align: center; color: var(--primary); }
+        .counter-tool { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.25rem; }
+        .btn-counter { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--bg); color: var(--text-main); font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .rep-input { width: 45px; text-align: center; border: none; background: transparent; font-size: 1.15rem; font-weight: 700; color: var(--primary); outline: none; -moz-appearance: textfield; }
+        .rep-input::-webkit-outer-spin-button, .rep-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
         /* Sets Group */
         .sets-container { display: flex; gap: 0.6rem; flex-wrap: wrap; }
@@ -63,15 +67,24 @@
         .timer-floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); padding: 1rem; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); display: none; z-index: 100; animation: slideUp 0.3s ease-out; }
         .timer-content { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
         .timer-info { display: flex; flex-direction: column; gap: 0.25rem; }
-        .timer-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+        .timer-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; max-width: 230px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .timer-clock { font-size: 1.6rem; font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; }
         .timer-actions { display: flex; gap: 0.5rem; }
         .btn-timer-opt { padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); font-weight: 600; font-size: 0.85rem; cursor: pointer; }
         .btn-timer-opt.skip { background: var(--danger); color: white; border: none; }
 
+        /* Custom Timer Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-card { background: var(--card); border-radius: 16px; padding: 1.5rem; width: 100%; max-width: 400px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .modal-title { font-weight: 700; font-size: 1.2rem; margin-bottom: 1rem; }
+        .modal-input { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); font-size: 1.1rem; font-weight: bold; margin-bottom: 1.25rem; text-align: center; outline: none; }
+        .modal-actions { display: flex; gap: 0.5rem; }
+        .modal-btn { flex: 1; padding: 0.75rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .modal-btn.primary { background: var(--primary); color: white; }
+        .modal-btn.secondary { background: var(--set-bg); color: var(--text-main); }
+
         /* Actions Button */
         .btn-save { width: 100%; background: var(--primary); color: white; border: none; padding: 1.1rem; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-        .btn-save:active { transform: scale(0.98); }
         
         /* History Section (Accordion) */
         .history-section { display: none; }
@@ -81,12 +94,13 @@
         .history-date { font-weight: 700; color: var(--text-main); }
         .history-routine-tag { background: var(--primary); color: white; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
         .history-score { font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem; }
+        .btn-del-history { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 0.25rem; }
         
         .history-details { display: none; padding-top: 1rem; margin-top: 1rem; border-top: 1px dashed var(--border); animation: fadeIn 0.2s ease-in-out; }
         .history-details.active { display: block; }
-        .history-exo-row { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 0.35rem 0; border-bottom: 1px solid var(--bg); }
+        .history-exo-row { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 0.45rem 0; border-bottom: 1px solid var(--bg); align-items: center; }
         .history-exo-row:last-child { border-bottom: none; }
-        .history-sets-logged { font-weight: bold; color: var(--success); }
+        .history-sets-logged { font-weight: bold; color: var(--success); font-size: 0.85rem; }
         
         /* Utilities */
         #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--text-main); color: var(--bg); padding: 0.75rem 1.5rem; border-radius: 999px; font-weight: 700; font-size: 0.9rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 150; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
@@ -99,9 +113,12 @@
 <body>
 
     <header>
-        <button class="icon-btn" onclick="toggleTheme()" title="Mode Sombre/Clair">🌓</button>
+        <div class="header-actions">
+            <button class="icon-btn" onclick="toggleTheme()" title="Mode Sombre/Clair">🌓</button>
+            <button class="icon-btn" onclick="toggleCustomTimerModal(true)" title="Minuteur Réglable">⏱️</button>
+        </div>
         <h1>ULPPL Tracker</h1>
-        <div style="width: 40px;"></div>
+        <button class="icon-btn" onclick="toggleHistoryView()" title="Historique">📋</button>
     </header>
 
     <div class="container">
@@ -111,7 +128,7 @@
         </div>
 
         <div id="view-workout">
-            <select id="workoutSelect" class="workout-selector" onchange="loadWorkout()">
+            <select id="workoutSelect" class="workout-selector" onchange="changeWorkoutSelection()">
                 <option value="0">Jour 1 : UPPER</option>
                 <option value="1">Jour 2 : LOWER 1</option>
                 <option value="2">Jour 4 : PUSH</option>
@@ -126,14 +143,17 @@
 
         <div id="view-history" class="history-section">
             <div id="historyContainer"></div>
-            <button onclick="clearHistory()" style="width:100%; margin-top:1.5rem; padding:0.85rem; background:var(--danger); color:white; border:none; border-radius:12px; cursor:pointer; font-weight:700; box-shadow: var(--shadow);">🗑️ Effacer tout l'historique</button>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                <button onclick="promptKeepLastN()" style="flex: 1; padding: 0.85rem; background: var(--secondary); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; box-shadow: var(--shadow);">📋 Nettoyer l'historique</button>
+                <button onclick="clearHistory()" style="flex: 1; padding: 0.85rem; background: var(--danger); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; box-shadow: var(--shadow);">🗑️ Tout effacer</button>
+            </div>
         </div>
     </div>
 
     <div id="floatingTimer" class="timer-floating-bar">
         <div class="timer-content">
             <div class="timer-info">
-                <span id="timerExoName" class="timer-title">Nom de l'exercice</span>
+                <span id="timerExoName" class="timer-title">Repos</span>
                 <span id="timerClock" class="timer-clock">00:00</span>
             </div>
             <div class="timer-actions">
@@ -143,10 +163,22 @@
         </div>
     </div>
 
+    <div id="customTimerModal" class="modal">
+        <div class="modal-card">
+            <div class="modal-title">⏱️ Minuteur Personnalisé</div>
+            <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display:block; margin-bottom: 0.5rem;">Durée du repos (en secondes) :</label>
+            <input type="number" id="customTimerInput" class="modal-input" value="90" min="5" max="600">
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="toggleCustomTimerModal(false)">Annuler</button>
+                <button class="modal-btn primary" onclick="launchCustomTimer()">Lancer 🚀</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast">Message</div>
 
     <script>
-        const routines = [
+        const defaultRoutines = [
             {
                 name: "UPPER",
                 exercises: [
@@ -186,7 +218,7 @@
                 name: "PULL",
                 exercises: [
                     { name: "Pullovers", sets: 3, reps: "10-15", rest: "2 min", defaultReps: 10 },
-                    { name: "One arm weighted bag rows", sets: 3, reps: "8-15", rest: "2 min", defaultReps: 10 },
+                    { name: "One arm weighted bag rows or feet-banded rows", sets: 3, reps: "8-15", rest: "2 min", defaultReps: 10 },
                     { name: "Prone rear delt flies", sets: 3, reps: "10-15", rest: "2 min", defaultReps: 10 },
                     { name: "Bent-over banded face pulls", sets: 4, reps: "10-15", rest: "1 - 1.5 min", defaultReps: 10 },
                     { name: "Single-arm banded curls", sets: 3, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
@@ -206,9 +238,36 @@
             }
         ];
 
+        let routines = [];
         let currentWorkoutState = [];
         let timerInterval = null;
         let timeRemaining = 0;
+
+        // INITIALISATION ENGINE
+        function initApp() {
+            // Light / Dark Theme
+            if(localStorage.getItem('ulppl_theme') === 'dark') document.body.classList.add('dark');
+            
+            // Routines (Personnalisées ou par défaut)
+            const storedRoutines = localStorage.getItem('ulppl_custom_routines');
+            if (storedRoutines) {
+                routines = JSON.parse(storedRoutines);
+            } else {
+                routines = defaultRoutines;
+                localStorage.setItem('ulppl_custom_routines', JSON.stringify(routines));
+            }
+
+            // Vérification s'il y a un crash-safe en cours
+            const savedActiveSession = localStorage.getItem('ulppl_active_session');
+            if (savedActiveSession) {
+                const parsed = JSON.parse(savedActiveSession);
+                document.getElementById('workoutSelect').value = parsed.routineIndex;
+                currentWorkoutState = parsed.state;
+                renderWorkoutUI();
+            } else {
+                loadWorkout(false); // Init classique
+            }
+        }
 
         function toggleTheme() {
             document.body.classList.toggle('dark');
@@ -230,8 +289,12 @@
             if(tab === 'history') renderHistory();
         }
 
+        function toggleHistoryView() {
+            const isWorkoutVisible = document.getElementById('view-workout').style.display !== 'none';
+            switchTab(isWorkoutVisible ? 'history' : 'workout');
+        }
+
         function parseMinRest(restStr) {
-            // Extrait la valeur minimale (ex: "1.5 - 2 min" -> 1.5)
             let clean = restStr.replace('min', '').trim();
             if (clean.includes('-')) {
                 clean = clean.split('-')[0].trim();
@@ -239,42 +302,69 @@
             return Math.round(parseFloat(clean) * 60);
         }
 
-        function loadWorkout() {
+        function changeWorkoutSelection() {
+            // Efface l'ancienne sauvegarde temporaire si on change manuellement de type de séance
+            localStorage.removeItem('ulppl_active_session');
+            loadWorkout(true);
+        }
+
+        function loadWorkout(isFreshInit = true) {
             const index = document.getElementById('workoutSelect').value;
             const routine = routines[index];
+            
+            if (isFreshInit) {
+                currentWorkoutState = routine.exercises.map(ex => ({
+                    name: ex.name,
+                    targetReps: ex.reps,
+                    selectedReps: ex.defaultReps,
+                    loggedSets: Array(ex.sets).fill(null)
+                }));
+            }
+            renderWorkoutUI();
+        }
+
+        function saveActiveSessionState() {
+            const index = document.getElementById('workoutSelect').value;
+            const payload = {
+                routineIndex: index,
+                state: currentWorkoutState
+            };
+            localStorage.setItem('ulppl_active_session', JSON.stringify(payload));
+        }
+
+        function renderWorkoutUI() {
+            const index = document.getElementById('workoutSelect').value;
             const container = document.getElementById('exercisesContainer');
             container.innerHTML = '';
             
-            currentWorkoutState = routine.exercises.map(ex => ({
-                name: ex.name,
-                targetReps: ex.reps,
-                selectedReps: ex.defaultReps,
-                loggedSets: Array(ex.sets).fill(null) // null = not done, number = reps done
-            }));
-
             currentWorkoutState.forEach((ex, exoIndex) => {
                 let setsHtml = '';
                 for(let i=0; i<ex.loggedSets.length; i++) {
+                    const isChecked = ex.loggedSets[i] !== null;
+                    const displayLabel = isChecked ? `${ex.loggedSets[i]} r` : `${i+1}`;
                     setsHtml += `
-                        <button class="set-btn" id="btn-exo-${exoIndex}-set-${i}" onclick="toggleSet(${exoIndex}, ${i})">
-                            <span class="set-num">Set ${i+1}</span>
-                            <span class="set-status-text">${i+1}</span>
+                        <button class="set-btn ${isChecked ? 'checked' : ''}" id="btn-exo-${exoIndex}-set-${i}" onclick="toggleSet(${exoIndex}, ${i})">
+                            <span class="set-num">Série ${i+1}</span>
+                            <span class="set-status-text">${displayLabel}</span>
                         </button>`;
                 }
 
                 container.innerHTML += `
                     <div class="card">
-                        <div class="exo-title">${ex.name}</div>
+                        <div class="exo-title-row">
+                            <div class="exo-title">${ex.name}</div>
+                            <button class="btn-rename" onclick="renameExercise(${exoIndex})" title="Renommer l'exercice">✏️</button>
+                        </div>
                         <div class="exo-meta-row">
-                            <span class="exo-meta">🔄 Cible : ${ex.targetReps}</span>
-                            <span class="exo-meta">⏱️ Repos : ${routine.exercises[exoIndex].rest}</span>
+                            <span class="exo-meta">🔄 Objectif : ${ex.targetReps}</span>
+                            <span class="exo-meta">⏱️ Repos : ${routines[index].exercises[exoIndex].rest}</span>
                         </div>
                         
                         <div class="rep-picker-zone">
-                            <span class="rep-label">Répétitions effectuées :</span>
+                            <span class="rep-label">Reps à valider :</span>
                             <div class="counter-tool">
                                 <button class="btn-counter" onclick="adjustRepCount(${exoIndex}, -1)">-</button>
-                                <span class="rep-display" id="rep-display-${exoIndex}">${ex.selectedReps}</span>
+                                <input type="number" class="rep-input" id="rep-display-${exoIndex}" value="${ex.selectedReps}" onchange="manualRepInput(${exoIndex}, this.value)">
                                 <button class="btn-counter" onclick="adjustRepCount(${exoIndex}, 1)">+</button>
                             </div>
                         </div>
@@ -285,11 +375,44 @@
             });
         }
 
+        function renameExercise(exoIndex) {
+            const currentName = currentWorkoutState[exoIndex].name;
+            const newName = prompt(`Entrez le nouveau nom pour l'exercice :\n"${currentName}"`, currentName);
+            
+            if (newName && newName.trim() !== "") {
+                const cleanName = newName.trim();
+                const routineIndex = document.getElementById('workoutSelect').value;
+                
+                // 1. Modifier l'état temporaire
+                currentWorkoutState[exoIndex].name = cleanName;
+                
+                // 2. Modifier le template global (Persistant)
+                routines[routineIndex].exercises[exoIndex].name = cleanName;
+                localStorage.setItem('ulppl_custom_routines', JSON.stringify(routines));
+                
+                // Sauvegarde de secours & re-render
+                saveActiveSessionState();
+                renderWorkoutUI();
+                showToast("✏️ Exercice renommé !");
+            }
+        }
+
         function adjustRepCount(exoIndex, amount) {
-            let newVal = currentWorkoutState[exoIndex].selectedReps + amount;
-            if(newVal < 0) newVal = 0;
-            currentWorkoutState[exoIndex].selectedReps = newVal;
-            document.getElementById(`rep-display-${exoIndex}`).textContent = newVal;
+            let newVal = parseInt(currentWorkoutState[exoIndex].selectedReps) + amount;
+            if(isNaN(newVal) || newVal < 0) newVal = 0;
+            updateRepValue(exoIndex, newVal);
+        }
+
+        function manualRepInput(exoIndex, val) {
+            let newVal = parseInt(val);
+            if(isNaN(newVal) || newVal < 0) newVal = 0;
+            updateRepValue(exoIndex, newVal);
+        }
+
+        function updateRepValue(exoIndex, val) {
+            currentWorkoutState[exoIndex].selectedReps = val;
+            document.getElementById(`rep-display-${exoIndex}`).value = val;
+            saveActiveSessionState(); // crash-safe target reps
         }
 
         function toggleSet(exoIndex, setIndex) {
@@ -300,13 +423,13 @@
 
             if (exercise.loggedSets[setIndex] === null) {
                 // Validation de la série
-                const currentRepsInput = exercise.selectedReps;
+                const currentRepsInput = parseInt(document.getElementById(`rep-display-${exoIndex}`).value) || 0;
                 exercise.loggedSets[setIndex] = currentRepsInput;
                 
                 setBtn.classList.add('checked');
                 statusTextSpan.textContent = currentRepsInput + ' r';
                 
-                // Lancement auto du timer intelligent (Repos Min)
+                // Auto-timer
                 const seconds = parseMinRest(rawRestString);
                 startTimer(exercise.name, seconds);
             } else {
@@ -314,18 +437,17 @@
                 exercise.loggedSets[setIndex] = null;
                 setBtn.classList.remove('checked');
                 statusTextSpan.textContent = setIndex + 1;
-                
-                // Stopper le minuteur en cours si besoin
                 stopTimer(false);
             }
+            saveActiveSessionState(); // Crash-safe immédiat
         }
 
         /* TIMER ENGINE */
-        function startTimer(exoName, seconds) {
+        function startTimer(title, seconds) {
             clearInterval(timerInterval);
             timeRemaining = seconds;
             
-            document.getElementById('timerExoName').textContent = `Repos après : ${exoName}`;
+            document.getElementById('timerExoName').textContent = title;
             updateTimerUI();
             document.getElementById('floatingTimer').style.display = 'block';
 
@@ -336,7 +458,7 @@
                 if (timeRemaining <= 0) {
                     clearInterval(timerInterval);
                     triggerBeepNotification();
-                    showToast("⏳ Repos terminé ! À la série suivante.");
+                    showToast("⏳ Repos terminé !");
                     document.getElementById('floatingTimer').style.display = 'none';
                 }
             }, 1000);
@@ -359,47 +481,55 @@
                 `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
+        /* CUSTOM HEADER TIMER */
+        function toggleCustomTimerModal(show) {
+            document.getElementById('customTimerModal').style.display = show ? 'flex' : 'none';
+        }
+
+        function launchCustomTimer() {
+            const inputVal = parseInt(document.getElementById('customTimerInput').value);
+            if (isNaN(inputVal) || inputVal <= 0) {
+                showToast("⚠️ Durée invalide");
+                return;
+            }
+            toggleCustomTimerModal(false);
+            startTimer("Chrono Manuel", inputVal);
+        }
+
         function triggerBeepNotification() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 let timeOffset = 0;
-                // Génère 3 bips dynamiques et motivants
                 for (let i = 0; i < 3; i++) {
                     const osc = audioCtx.createOscillator();
                     const gainNode = audioCtx.createGain();
-                    
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(880, audioCtx.currentTime + timeOffset); // Note La (A5)
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime + timeOffset);
                     gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime + timeOffset);
                     gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + timeOffset + 0.2);
-                    
                     osc.connect(gainNode);
                     gainNode.connect(audioCtx.destination);
-                    
                     osc.start(audioCtx.currentTime + timeOffset);
                     osc.stop(audioCtx.currentTime + timeOffset + 0.2);
                     timeOffset += 0.25;
                 }
-            } catch(e) {
-                console.log("Audio non supporté ou bloqué par le navigateur", e);
-            }
+            } catch(e) { console.log(e); }
         }
 
-        /* SESSION STORAGE & HISTORY MANAGEMENT */
+        /* HISTORY MANAGEMENT */
         function saveSession() {
             const index = document.getElementById('workoutSelect').value;
             const routineName = routines[index].name;
             
             let totalSets = 0;
             let completedSets = 0;
-            
             currentWorkoutState.forEach(ex => {
                 totalSets += ex.loggedSets.length;
                 completedSets += ex.loggedSets.filter(s => s !== null).length;
             });
 
             if (completedSets === 0) {
-                showToast("⚠️ Tu n'as validé aucune série !");
+                showToast("⚠️ Aucune série n'a été validée !");
                 return;
             }
 
@@ -414,17 +544,18 @@
                 }))
             };
 
-            let history = JSON.parse(localStorage.getItem('ulppl_v2_history') || '[]');
+            let history = JSON.parse(localStorage.getItem('ulppl_v3_history') || '[]');
             history.unshift(sessionRecord);
-            localStorage.setItem('ulppl_v2_history', JSON.stringify(history));
+            localStorage.setItem('ulppl_v3_history', JSON.stringify(history));
 
-            showToast("💪 Séance enregistrée avec succès !");
+            localStorage.removeItem('ulppl_active_session'); // Nettoyage crash-safe
+            showToast("💪 Séance enregistrée !");
             stopTimer(true);
-            loadWorkout();
+            loadWorkout(true);
         }
 
         function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('ulppl_v2_history') || '[]');
+            const history = JSON.parse(localStorage.getItem('ulppl_v3_history') || '[]');
             const container = document.getElementById('historyContainer');
             
             if (history.length === 0) {
@@ -433,12 +564,11 @@
             }
 
             container.innerHTML = history.map(item => {
-                // Rendu des lignes d'exercices détaillées
                 const exoDetailsHtml = item.exercises.map(ex => {
                     const setsStr = ex.sets.map((s, idx) => s !== null ? `S${idx+1}: <strong>${s}r</strong>` : `S${idx+1}: -`).join(' | ');
                     return `
                         <div class="history-exo-row">
-                            <span style="max-width: 60%; text-align: left; font-weight:500;">${ex.name}</span>
+                            <span style="max-width: 55%; text-align: left; font-weight:500;">${ex.name}</span>
                             <span class="history-sets-logged">${setsStr}</span>
                         </div>
                     `;
@@ -451,7 +581,10 @@
                                 <div class="history-date">📅 ${item.date}</div>
                                 <div class="history-score">${item.score}</div>
                             </div>
-                            <span class="history-routine-tag">${item.routine}</span>
+                            <div style="display:flex; align-items:center; gap: 0.5rem;">
+                                <span class="history-routine-tag">${item.routine}</span>
+                                <button class="btn-del-history" onclick="event.stopPropagation(); deleteHistoryRow(${item.id})">❌</button>
+                            </div>
                         </div>
                         <div id="details-${item.id}" class="history-details">
                             ${exoDetailsHtml}
@@ -465,25 +598,50 @@
             const target = document.getElementById(`details-${id}`);
             if (target) {
                 const isOpen = target.classList.contains('active');
-                // Fermer les autres ouverts si on veut une UX épurée
                 document.querySelectorAll('.history-details').forEach(el => el.classList.remove('active'));
-                if (!isOpen) {
-                    target.classList.add('active');
+                if (!isOpen) target.classList.add('active');
+            }
+        }
+
+        function deleteHistoryRow(id) {
+            if(confirm("Supprimer cette séance spécifique de l'historique ?")) {
+                let history = JSON.parse(localStorage.getItem('ulppl_v3_history') || '[]');
+                history = history.filter(item => item.id !== id);
+                localStorage.setItem('ulppl_v3_history', JSON.stringify(history));
+                renderHistory();
+                showToast("🗑️ Séance supprimée");
+            }
+        }
+
+        function promptKeepLastN() {
+            const num = prompt("Combien de séances récentes souhaitez-vous conserver ?", "20");
+            if (num) {
+                const n = parseInt(num);
+                if (!isNaN(n) && n > 0) {
+                    let history = JSON.parse(localStorage.getItem('ulppl_v3_history') || '[]');
+                    if (history.length <= n) {
+                        showToast(`Historique déjà inférieur à ${n} entrées.`);
+                        return;
+                    }
+                    const removed = history.length - n;
+                    history = history.slice(0, n);
+                    localStorage.setItem('ulppl_v3_history', JSON.stringify(history));
+                    renderHistory();
+                    showToast(`📋 ${n} entrées gardées. ${removed} supprimées.`);
                 }
             }
         }
 
         function clearHistory() {
-            if(confirm("Confirmez-vous la suppression totale de votre historique ? Cette action est irréversible.")) {
-                localStorage.removeItem('ulppl_v2_history');
+            if(confirm("Confirmez-vous la suppression TOTALE de l'historique ? Action définitive.")) {
+                localStorage.removeItem('ulppl_v3_history');
                 renderHistory();
                 showToast("🗑️ Tout l'historique a été vidé.");
             }
         }
 
-        // INITIALISATION ENGINE
-        if(localStorage.getItem('ulppl_theme') === 'dark') document.body.classList.add('dark');
-        loadWorkout();
+        // Run
+        window.onload = initApp;
     </script>
 </body>
 </html>
