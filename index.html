@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>ULPPL Knee-safe routine Tracker</title>
+    <title>ULPPL Knee-safe routine tracker</title>
 	<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏋️‍♂️</text></svg>">
 	<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏋️‍♂️</text></svg>">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -117,8 +117,8 @@
             <button class="icon-btn" onclick="toggleTheme()" title="Mode Sombre/Clair">🌓</button>
             <button class="icon-btn" onclick="toggleCustomTimerModal(true)" title="Minuteur Réglable">⏱️</button>
         </div>
-        <h1>ULPPL Tracker</h1>
-        <button class="icon-btn" onclick="toggleHistoryView()" title="Historique">📋</button>
+        <h1>ULPPL Knee-Safe Routine Tracker<br></h1>
+		        <button class="icon-btn" onclick="toggleHistoryView()" title="Historique">📋</button>
     </header>
 
     <div class="container">
@@ -128,6 +128,11 @@
         </div>
 
         <div id="view-workout">
+			<div style="padding: 1rem; background: var(--card); border-radius: 12px; margin-bottom: 1rem; font-size: 0.9rem; border: 1px solid var(--border);">
+			<p><strong>Daily Box Breathing & McGill</strong> (8-10s hold): Curl-up (6,4,2) + Side plank (6,4,2) + Bird-Dog (6,4,2)<br></p>
+			<p><strong>Warmup:</strong> 5m bike, Joint circles, Cat-Cow, pull-aparts x10, ext. shoulder rotation x10</p>
+			<p><strong>Rest Days:</strong> 15-30m bike/walk chill</p>
+			</div>
             <select id="workoutSelect" class="workout-selector" onchange="changeWorkoutSelection()">
                 <option value="0">Jour 1 : UPPER</option>
                 <option value="1">Jour 2 : LOWER 1</option>
@@ -178,11 +183,13 @@
     <div id="toast">Message</div>
 
     <script>
+		const ROUTINE_VERSION = 3;
         const defaultRoutines = [
+
             {
                 name: "UPPER",
                 exercises: [
-                    { name: "(Single-arm) Banded shoulder press", sets: 3, reps: "8-15", rest: "2 min", defaultReps: 10 },
+                    { name: "Banded shoulder press", sets: 3, reps: "8-15", rest: "2 min", defaultReps: 10 },
                     { name: "Banded pushup", sets: 4, reps: "8-15", rest: "2 min", defaultReps: 10 },
                     { name: "Neutral-grip Inverted row", sets: 4, reps: "8-15", rest: "2 min", defaultReps: 10 },
                     { name: "Lying weight pullovers", sets: 3, reps: "8-15", rest: "2 min", defaultReps: 10 },
@@ -195,7 +202,7 @@
                 name: "LOWER 1",
                 exercises: [
                     { name: "Wall sits", sets: 3, reps: "Max", rest: "1 - 2 min", defaultReps: 45 },
-                    { name: "Hamstring Bridge Walks", sets: 4, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
+                    { name: "Single‑Leg Banded RDL", sets: 3, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
                     { name: "Banded unilateral Glute Bridge", sets: 3, reps: "10-15", rest: "2 min", defaultReps: 10 },
                     { name: "Ball hamstring curl", sets: 3, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
                     { name: "Side-Lying Hip Abduction", sets: 3, reps: "10-15", rest: "1 - 1.5 min", defaultReps: 10 },
@@ -208,10 +215,10 @@
                 exercises: [
                     { name: "Decline Banded Close-grip pushup", sets: 3, reps: "10-15", rest: "2 min", defaultReps: 10 },
                     { name: "Banded deficit pushup", sets: 3, reps: "10-15", rest: "2 min", defaultReps: 10 },
-                    { name: "Banded lateral raises (single-arm)", sets: 4, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
+                    { name: "Banded lateral raises", sets: 4, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
                     { name: "Standing underhand band fly", sets: 2, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
                     { name: "Banded triceps extensions", sets: 3, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
-                    { name: "Copenhagen Plank", sets: 3, reps: "Max", rest: "1 min", defaultReps: 45 }
+                    { name: "Knee-supported Copenhagen Plank", sets: 3, reps: "Max", rest: "1 min", defaultReps: 45 }
                 ]
             },
             {
@@ -220,21 +227,22 @@
                     { name: "Pullovers", sets: 3, reps: "10-15", rest: "2 min", defaultReps: 10 },
                     { name: "One arm weighted bag rows or feet-banded rows", sets: 3, reps: "8-15", rest: "2 min", defaultReps: 10 },
                     { name: "Prone rear delt flies", sets: 3, reps: "10-15", rest: "2 min", defaultReps: 10 },
-                    { name: "Bent-over banded face pulls", sets: 4, reps: "10-15", rest: "1 - 1.5 min", defaultReps: 10 },
+                    { name: "Seated Feet-Banded Face Pulls", sets: 4, reps: "10-15", rest: "1 - 1.5 min", defaultReps: 10 },
                     { name: "Single-arm banded curls", sets: 3, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
-                    { name: "Single-arm banded hammer curls", sets: 3, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 }
+                    { name: "Single-arm banded hammer curls", sets: 3, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
+					{ name: "Banded Behind-the-Back Lateral Raises", sets: 4, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 }
                 ]
             },
             {
                 name: "LOWER 2",
                 exercises: [
                     { name: "Wall sits", sets: 3, reps: "Max", rest: "1 - 2 min", defaultReps: 45 },
-                    { name: "Hamstring Bridge Walks", sets: 4, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
+                    { name: "Single‑Leg Banded RDL", sets: 3, reps: "10-15", rest: "1.5 - 2 min", defaultReps: 10 },
                     { name: "Banded unilateral Glute Bridge", sets: 3, reps: "10-15", rest: "2 min", defaultReps: 10 },
-                    { name: "Reverse Hypers", sets: 3, reps: "10-15", rest: "2 min", defaultReps: 10 },
+                    { name: "Ball Hamstring Curl", sets: 3, reps: "10-15", rest: "2 min", defaultReps: 10 },
+					{ name: "Banded Clamshells", sets: 3, reps: "10-15", rest: "1 - 1.5 min", defaultReps: 10 },
                     { name: "Calf raises", sets: 4, reps: "10-15", rest: "1 - 1.5 min", defaultReps: 10 },
-                    { name: "c-shaped reverse crunches (progressed to modified candlestick)", sets: 3, reps: "8-15", rest: "1 min", defaultReps: 10 },
-					{ name: "Upper Circle Crunches", sets: 3, reps: "10-20/side", rest: "1 min", defaultReps: 10 }
+                    { name: "Ab wheel rollout", sets: 3, reps: "8-12)", rest: "1 min", defaultReps: 10 }
                 ]
             }
         ];
@@ -248,7 +256,19 @@
         function initApp() {
             // Light / Dark Theme
             if(localStorage.getItem('ulppl_theme') === 'dark') document.body.classList.add('dark');
-            
+			
+			const storedVersion = localStorage.getItem('ulppl_routines_version');
+
+			if (storedVersion && parseInt(storedVersion) === ROUTINE_VERSION) {
+				// Version matches: load from localStorage
+				routines = JSON.parse(localStorage.getItem('ulppl_custom_routines'));
+			} else {
+				// Version mismatch or first run: load hardcoded defaults and update version
+				routines = defaultRoutines;
+				localStorage.setItem('ulppl_custom_routines', JSON.stringify(routines));
+				localStorage.setItem('ulppl_routines_version', ROUTINE_VERSION);
+			}    
+			
             // Routines (Personnalisées ou par défaut)
             const storedRoutines = localStorage.getItem('ulppl_custom_routines');
             if (storedRoutines) {
